@@ -9,13 +9,105 @@
 <body>
     <div>
         <a href="/logout">Logout</a>
+        <a href="/delete_all_msg">Delete all Message</a>
     </div>
-    <h1>Welcome <%= thisUser %> to homepage.</h1>
+    <h1>Welcome <%= curUser %> to homepage.</h1>
+
+    <div class="chat-container">
+        <% chat_rows.forEach((chat_row) => { %>
+            <div class="message">
+                <p><%= chat_row.username %> <%= chat_row.date.toISOString().split("T")[0] %> | <%= chat_row.time %></p>
+                <p class="chat-message" style="color: 
+                <% if (chat_row.username === 'Ousmart') { %>
+                blue
+                <% } else { %>
+                red 
+                <% } %>"><%= chat_row.message %></p>
+            </div>
+        <% }) %>
+        <div class="message"></div>
+    </div>
+
+    <div class="mb-3">
+        <form class="chat-form" id="chat_form">
+            <label for="message" class="form-label">Message</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= curUser %>" hidden/>
+            <input type="text" class="form-control" id="message" name="message"/>
+            <button type="button" class="btn btn-primary" id="btn_send">Send</button>
+        </form>
+    </div>
     
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
     <script>
+        // (function conenct() {
         const socket = io();
+        const chat_form = document.getElementById('chat_form');
+        const sendBtn = document.getElementById('btn_send');
+        const message = document.getElementById('message');
+        const name = document.getElementById('name');
+
+        sendBtn.addEventListener('click', e => {
+            if (message.value) {
+                const currentDateTime = new Date();
+                const payload = {
+                    username: name.value,
+                    message: message.value,
+                    date: currentDateTime.toLocaleDateString(),
+                    separate: " | ",
+                    time: currentDateTime.toLocaleTimeString(),
+                }
+                socket.emit('send_message', payload);
+                message.value = '';
+            }
+        });
+
+        socket.on('receive_message', (chat_rows) => {
+            const chatContainer = document.querySelector('.chat-container');
+            chatContainer.innerHTML = ''; // Clear the existing messages
+
+            chat_rows.forEach((chat_row) => {
+                const DIV = document.createElement('div');
+                DIV.classList.add('message');
+
+                let messageColor = '';
+                if (chat_row.username === 'Ousmart') {
+                    messageColor = 'blue';
+                }
+                else {
+                    messageColor = 'red';
+                }
+                DIV.innerHTML = `
+                    <p>${chat_row.username} ${chat_row.date.split("T")[0]} | ${chat_row.time}</p>
+                    <p class="chat-message" style="color: ${messageColor}">${chat_row.message}</p>
+                `
+                chatContainer.appendChild(DIV);
+            });
+        });
+
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     const chatContainer = document.querySelector('.chat-container');
+        //     chatContainer.innerHTML = '';
+
+        //     chat_rows.forEach((chat_row) => {
+        //         const DIV = document.createElement('div');
+        //         DIV.classList.add('message');
+
+        //         let messageColor = '';
+        //         if (chat_row.username === 'Ousmart') {
+        //             messageColor = 'blue';
+        //         }
+        //         else {
+        //             messageColor = 'red';
+        //         }
+
+        //         DIV.innerHTML = `
+        //             <p>${chat_row.username} ${chat_row.date} | ${chat_row.time}</p>
+        //             <p class="chat-message" style="color: ${messageColor}">${chat_row.message}</p>
+        //         `
+        //         chatContainer.appendChild(DIV);
+        //     });
+        // });
 
     </script>
 </body>
