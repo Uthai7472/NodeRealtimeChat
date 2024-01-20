@@ -8,6 +8,7 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const cookieParser = require('cookie-parser');
 const moment = require('moment-timezone');
+const fs = require('fs');
 
 const port = 1707;
 
@@ -103,6 +104,7 @@ app.get('/', async (req, res) => {
             message VARCHAR(1000),
             date DATE,
             time TIME)`);
+        // await connection.query('DROP TABLE tb_chatHistory');
         connection.release();
         const [user_rows] = await connection.query('SELECT * FROM users');
         connection.release();
@@ -169,6 +171,8 @@ io.on('connect', socket => {
     // console.log('A user connected: ' + curUser);
 
     socket.on('send_message', async (msg) => {
+        // const {payload, imageBase64} = msg;
+
         const connection = await pool.getConnection();
         const thailandTime = moment().tz('Asia/Bangkok');
         const formattedDate = thailandTime.format('YYYY-MM-DD').split("T")[0]; // Format date as YYYY-MM-DD
@@ -191,7 +195,18 @@ io.on('connect', socket => {
 
     socket.on('typing', type_data => {
         socket.broadcast.emit('typing', {username: type_data.username});
-    })
+    });
+
+    // socket.on('image', (imageBase64) => {
+    //     // const imageBuffer = Buffer.from(imageBase64, 'base64');
+
+    //     // const filename = generateUniqueFilename();
+
+    //     // // Save the image to a temporary file or buffer on the server
+    //     // fs.writeFileSync(`temp/${filename}.jpg`, imageBuffer);
+
+    //     io.emit('image', imageBase64);
+    // })
 });
 
 

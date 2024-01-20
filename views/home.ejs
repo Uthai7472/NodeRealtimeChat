@@ -117,6 +117,7 @@
                 </div>
             <% }) %>
         </div>
+        
         <div class="typing" id="typing"></div>
         <div class="read-message" id="read_message"></div> 
     </div>
@@ -147,6 +148,19 @@
         const name = document.getElementById('name');
         const btn_read = document.getElementById('btn_read');
         const read_message = document.getElementById('read_message');
+        //_______________ Read Image ______________
+        // const fileInput = document.getElementById('imageInput');
+    //     fileInput.addEventListener('change', (event) => {
+    //     const file = event.target.files[0];
+    //     const reader = new FileReader();
+    //     reader.onload = function (event) {
+    //         const imageBase64 = event.target.result;
+    //         socket.emit('image', imageBase64);
+    //     };
+    //     reader.readAsDataURL(file);
+    // });
+
+        // _______________________________________
 
         sendBtn.addEventListener('click', e => {
             read_message.textContent = '';
@@ -160,6 +174,7 @@
                     separate: " | ",
                     time: currentDateTime.toLocaleTimeString(),
                 }
+
                 socket.emit('send_message', payload);
                 message.value = '';
             }
@@ -174,7 +189,7 @@
                 DIV.classList.add('message-chat');
 
                 let messageColor = '';
-                if (chat_row.username === 'Ousmart') {
+                if (chat_row.username === 'อู๋|สามีของมิลิน') {
                     messageColor = 'rgb(187, 238, 252)';
                 }
                 else {
@@ -216,7 +231,19 @@
         socket.on('typing', (type_data) => {
             typing.textContent = type_data.username + " กำลังพิมพ์...";
             setTimeout(() => { typing.textContent = ''}, 5000);
-        })
+        });
+
+        socket.on('image', (imageBase64) => {
+            // imageElement.src = imageBase64;
+            // Create a new image element
+            const newImage = document.createElement('img');
+            newImage.src = imageBase64;
+            newImage.alt = 'Sent Image';
+            
+            // Append the new image to the chat container
+            const chatContainer = document.querySelector('.chat-container');
+            chatContainer.appendChild(newImage);
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
         // Scroll the page to the bottom
