@@ -68,11 +68,11 @@ app.post('/login', async (req, res) => {
             console.log('Login successed');
             res.cookie('isAuthenticated', true); // Set the isAuthenticated cookie
             if (username === 'Ou') {
-                req.session.username = 'Ousmart';
+                req.session.username = 'อู๋|สามีของมิลิน';
                 // thisUser = "Ousmart";
             }
-            else if (username === 'Milin') {
-                req.session.username = 'Milin Noi';
+            else if (username === 'Milin' || username === 'milin' ) {
+                req.session.username = 'มิลิน|ภรรยาของอู๋';
                 // thisUser = "Milin Noi";
             }
             else {
