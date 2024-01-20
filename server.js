@@ -20,7 +20,7 @@ let thisUser = '';
 app.set("view engine", "ejs");
 app.use(express.static('public'));
 
-const server = app.listen(port, '10.116.16.165', () => {
+const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
