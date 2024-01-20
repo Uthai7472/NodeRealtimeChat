@@ -188,6 +188,10 @@ io.on('connect', socket => {
     socket.on('confirm_read', (readPayload) => {
         socket.broadcast.emit('confirm_read', {readPayload: readPayload});
     })
+
+    socket.on('typing', type_data => {
+        socket.broadcast.emit('typing', {username: type_data.username});
+    })
 });
 
 

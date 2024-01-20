@@ -11,17 +11,22 @@
             margin: 0;
             padding: 0;
         }
+        
         .read-message {
             font-style: italic;
             font-size: 15px;
             color: gray;
+            transform: translateY(-21vh);
+            margin-left: 5px;
+            /* grid-row: 2; */
         }
         .chat-container {
-            margin: 5px 5px 18vh 5px;
+            margin: 5px 5px 21vh 5px;
             border: 1px solid rgba(218, 230, 214, 0.897);
             padding: 5px 8px;
             border-radius: 8px;
             height: 50%;
+            /* grid-row: 1; */
         }
         .chat-box {
             margin: 5px 5px;
@@ -49,6 +54,11 @@
             background-color: white; /* Set the background color to white */
             /* Add any other desired styles */
         }
+        .typing {
+            position: fixed;
+            bottom: 18vh;
+        }
+        
     </style>
 </head>
 <body>
@@ -58,24 +68,24 @@
     </div>
     <h1>Welcome <%= curUser %> to homepage.</h1>
 
-    <div class="chat-container">
-        <% chat_rows.forEach((chat_row) => { %>
-            <div class="message">
-                <p><%= chat_row.username %> <%= chat_row.date.toISOString().split("T")[0] %> | <%= chat_row.time %></p>
-                <p class="chat-message" style="color: 
-                <% if (chat_row.username === 'Ousmart') { %>
-                blue
-                <% } else { %>
-                red 
-                <% } %>"><%= chat_row.message %></p>
-                
-            </div>
-        <% }) %>
-        <div class="message" style="font: 10 italic;"></div>
-        
-        
+    <div class="chat-block">
+        <div class="chat-container">
+            <% chat_rows.forEach((chat_row) => { %>
+                <div class="message-chat">
+                    <p><%= chat_row.username %> <%= chat_row.date.toISOString().split("T")[0] %> | <%= chat_row.time %></p>
+                    <p class="chat-message" style="color: 
+                    <% if (chat_row.username === 'Ousmart') { %>
+                    blue
+                    <% } else { %>
+                    red 
+                    <% } %>"><%= chat_row.message %></p>
+                    
+                </div>
+            <% }) %>
+        </div>
+        <div class="typing" id="typing"></div>
+        <div class="read-message" id="read_message"></div> 
     </div>
-    <div class="read-message" id="read_message"></div>
 
     <div class="mb-3 chat-box">
         <form class="chat-form" id="chat_form">
@@ -122,7 +132,7 @@
 
             chat_rows.forEach((chat_row) => {
                 const DIV = document.createElement('div');
-                DIV.classList.add('message');
+                DIV.classList.add('message-chat');
 
                 let messageColor = '';
                 if (chat_row.username === 'Ousmart') {
@@ -150,11 +160,29 @@
 
         socket.on('confirm_read', (readPayloads) => {
             const readPayload = readPayloads.readPayload;
+            console.log("Already read show")
 
             read_message.textContent = readPayload.username + "อ่านเเล้วเมื่อ " + readPayload.readDate + " | " + readPayload.readTime;
         
         });
 
+        let typing = document.querySelector('.typing');
+
+        message.addEventListener('keypress', e => {
+            let username = name.value;
+
+            socket.emit('typing', {username: username});
+        });
+
+        socket.on('typing', (type_data) => {
+            typing.textContent = type_data.username + " กำลังพิมพ์...";
+            setTimeout(() => { typing.textContent = ''}, 5000);
+        })
+
+        window.addEventListener('DOMContentLoaded', () => {
+        // Scroll the page to the bottom
+        window.scrollTo(0, document.body.scrollHeight);
+        });
     </script>
 </body>
 </html>
