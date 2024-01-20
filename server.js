@@ -178,12 +178,16 @@ io.on('connect', socket => {
             `INSERT INTO tb_chatHistory (username, message, date, time) VALUES (?, ?, ?, ?)`,
             [msg.username, msg.message, formattedDate, formattedTime]
         );
+        connection.release();
         const [updatedChatRows] = await connection.query('SELECT * FROM tb_chatHistory');
         connection.release();
 
         io.emit('receive_message', updatedChatRows);
-        connection.release();
     });
+
+    socket.on('confirm_read', (readPayload) => {
+        socket.broadcast.emit('confirm_read', {readPayload: readPayload});
+    })
 });
 
 

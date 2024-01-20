@@ -5,6 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .read-message {
+            font-style: italic;
+            font-size: 15px;
+            color: gray;
+        }
+        .chat-container {
+            margin: 5px 5px 18vh 5px;
+            border: 1px solid rgba(218, 230, 214, 0.897);
+            padding: 5px 8px;
+            border-radius: 8px;
+            height: 50%;
+        }
+        .chat-box {
+            margin: 5px 5px;
+            border: 1px solid rgba(218, 230, 214, 0.897);
+            padding: 0;
+            border-radius: 8px;
+            bottom: 10px;
+            width: 100%;
+            height: 14vh;
+            position: fixed;
+            background-color: rgba(150, 217, 236, 0.4);
+        }
+        .form-label {
+            font: 15px bold;
+            background-color: white;
+            padding-left: 10px;
+            margin-top: 0;
+            transform: translateY(-5px);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .chat-box .form-label {
+            width: 100%; /* Set the width to cover the entire chat-box */
+            height: 20px;
+            background-color: white; /* Set the background color to white */
+            /* Add any other desired styles */
+        }
+    </style>
 </head>
 <body>
     <div>
@@ -23,17 +68,22 @@
                 <% } else { %>
                 red 
                 <% } %>"><%= chat_row.message %></p>
+                
             </div>
         <% }) %>
-        <div class="message"></div>
+        <div class="message" style="font: 10 italic;"></div>
+        
+        
     </div>
+    <div class="read-message" id="read_message"></div>
 
-    <div class="mb-3">
+    <div class="mb-3 chat-box">
         <form class="chat-form" id="chat_form">
             <label for="message" class="form-label">Message</label>
             <input type="text" class="form-control" id="name" name="name" value="<%= curUser %>" hidden/>
             <input type="text" class="form-control" id="message" name="message"/>
             <button type="button" class="btn btn-primary" id="btn_send">Send</button>
+            <button type="button" class="btn btn-secondary" id="btn_read">อ่านเเล้ว</button>
         </form>
     </div>
     
@@ -46,8 +96,12 @@
         const sendBtn = document.getElementById('btn_send');
         const message = document.getElementById('message');
         const name = document.getElementById('name');
+        const btn_read = document.getElementById('btn_read');
+        const read_message = document.getElementById('read_message');
 
         sendBtn.addEventListener('click', e => {
+            read_message.textContent = '';
+
             if (message.value) {
                 const currentDateTime = new Date();
                 const payload = {
@@ -85,29 +139,21 @@
             });
         });
 
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     const chatContainer = document.querySelector('.chat-container');
-        //     chatContainer.innerHTML = '';
+        btn_read.addEventListener('click', () => {
+            const readPayload = {
+                username: name.value,
+                readDate: new Date().toLocaleDateString(),
+                readTime: new Date().toLocaleTimeString(),
+            }
+            socket.emit('confirm_read', readPayload);
+        })
 
-        //     chat_rows.forEach((chat_row) => {
-        //         const DIV = document.createElement('div');
-        //         DIV.classList.add('message');
+        socket.on('confirm_read', (readPayloads) => {
+            const readPayload = readPayloads.readPayload;
 
-        //         let messageColor = '';
-        //         if (chat_row.username === 'Ousmart') {
-        //             messageColor = 'blue';
-        //         }
-        //         else {
-        //             messageColor = 'red';
-        //         }
-
-        //         DIV.innerHTML = `
-        //             <p>${chat_row.username} ${chat_row.date} | ${chat_row.time}</p>
-        //             <p class="chat-message" style="color: ${messageColor}">${chat_row.message}</p>
-        //         `
-        //         chatContainer.appendChild(DIV);
-        //     });
-        // });
+            read_message.textContent = readPayload.username + "อ่านเเล้วเมื่อ " + readPayload.readDate + " | " + readPayload.readTime;
+        
+        });
 
     </script>
 </body>
